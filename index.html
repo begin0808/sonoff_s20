@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonoff S20 WiFi 智慧插座互動教學指南</title>
+    <meta name="description" content="本網站為 Sonoff S20 WiFi 智慧插座的互動教學指南，涵蓋官方 eWeLink App 連線配對、Tasmota/ESPHome 開源韌體刷寫、Home Assistant 本地智慧家庭整合，並附有互動式模擬器與自動化規則小幫手。">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="bg-glow bg-glow-1" id="glow-1"></div>
+    <div class="bg-glow bg-glow-2" id="glow-2"></div>
+
+    <!-- Header Navigation -->
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="18" height="18" rx="5" stroke="var(--primary)" stroke-width="2" />
+                    <circle cx="12" cy="12" r="3" fill="var(--primary-glow)" stroke="var(--primary)" stroke-width="2" />
+                    <path d="M12 2V6" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 18V22" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M2 12H6" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M18 12H22" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="logo-text">Sonoff S20 <span class="gradient-text">SmartGuide</span></span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#specs" class="nav-link">硬體規格</a>
+                <a href="#wizard" class="nav-link">設定指南</a>
+                <a href="#simulator" class="nav-link">控制模擬器</a>
+                <a href="#rules" class="nav-link">自動化邏輯</a>
+                <a href="#troubleshoot" class="nav-link">故障排除</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn btn-sm btn-outline" id="btn-quick-start">快速開始</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="badge">ESP8266 IoT 智慧插座</div>
+                <h1 class="hero-title">釋放智慧插座的<br><span class="gradient-text">無限可能</span></h1>
+                <p class="hero-subtitle">無論是透過官方 App 輕鬆上手，還是拆解機殼燒錄 Tasmota/ESPHome 接入 Home Assistant，這份指南將手把手帶您玩轉 Sonoff S20 智慧插座！</p>
+                <div class="hero-ctas">
+                    <a href="#wizard" class="btn btn-primary" id="cta-app-path" onclick="switchWizardPath('app')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"></rect><line x1="12" y1="18" x2="12" y2="18.01"></line></svg>
+                        App 快速配對教學
+                    </a>
+                    <a href="#wizard" class="btn btn-secondary" id="cta-diy-path" onclick="switchWizardPath('diy')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        極客硬體刷機改造
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="device-showcase-box">
+                    <!-- Custom SVG illustration of Sonoff S20 with animations -->
+                    <svg class="s20-svg-illustration" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Outer Shadow -->
+                        <circle cx="200" cy="200" r="160" fill="url(#bg-radial-glow)" opacity="0.15" />
+                        
+                        <!-- WiFi Signal Waves -->
+                        <g class="wifi-waves" id="wifi-waves-group">
+                            <path class="wave wave-1" d="M150 70 A 150 150 0 0 1 250 70" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.3"/>
+                            <path class="wave wave-2" d="M130 50 A 180 180 0 0 1 270 50" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5"/>
+                            <path class="wave wave-3" d="M110 30 A 210 210 0 0 1 290 30" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+                        </g>
+
+                        <!-- Plug Body (Rounded Rectangle) -->
+                        <rect x="120" y="80" width="160" height="240" rx="45" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="4" class="plug-body-rect" />
+                        <rect x="124" y="84" width="152" height="232" rx="41" fill="url(#plug-body-grad)" />
+                        
+                        <!-- Inner socket faceplate -->
+                        <rect x="140" y="100" width="120" height="120" rx="35" fill="#141829" stroke="var(--border-color)" stroke-width="2" />
+                        
+                        <!-- Outlet holes (Universal type shown on box) -->
+                        <g class="outlet-holes" fill="#0b0e17">
+                            <!-- Earth ground -->
+                            <rect x="195" y="115" width="10" height="15" rx="3" />
+                            <!-- Live & Neutral slots -->
+                            <path d="M165 140 H 180 V 150 H 165 Z" rx="2" />
+                            <path d="M167.5 150 L 172.5 160 H 177.5 L 172.5 150 Z" />
+                            <path d="M220 140 H 235 V 150 H 220 Z" rx="2" />
+                            <path d="M232.5 150 L 227.5 160 H 222.5 L 227.5 150 Z" />
+                            <circle cx="172.5" cy="180" r="6" />
+                            <circle cx="227.5" cy="180" r="6" />
+                        </g>
+
+                        <!-- Brand Name -->
+                        <text x="200" y="248" fill="#586782" font-family="'Outfit', sans-serif" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="1.5">SONOFF</text>
+
+                        <!-- Power Button & Status LED ring -->
+                        <g class="power-button-group" id="hero-power-btn">
+                            <!-- LED Ring Glow -->
+                            <circle cx="200" cy="285" r="24" fill="var(--primary-glow)" opacity="0" class="btn-led-glow" />
+                            <!-- LED Ring -->
+                            <circle cx="200" cy="285" r="20" stroke="#ff4181" stroke-width="3" fill="none" class="btn-led-ring" id="hero-led-ring" />
+                            <!-- Button Cap -->
+                            <circle cx="200" cy="285" r="16" fill="#1e2538" stroke="var(--border-color)" stroke-width="2" class="btn-cap" />
+                            <!-- Power Icon -->
+                            <path d="M200 279 V 285 M195 281.5 A 6 6 0 1 0 205 281.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" />
+                        </g>
+
+                        <!-- Gradients definition -->
+                        <defs>
+                            <radialGradient id="bg-radial-glow" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="var(--primary)" />
+                                <stop offset="100%" stop-color="var(--primary)" stop-opacity="0" />
+                            </radialGradient>
+                            <linearGradient id="plug-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#1b2238" />
+                                <stop offset="100%" stop-color="#0f1322" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Specs Dashboard -->
+    <section class="section specs-section" id="specs">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">硬體規格與內建晶片</h2>
+                <p class="section-subtitle">深入了解 Sonoff S20 的物理與內部電路設計，為您的整合奠定良好基礎。</p>
+            </div>
+            
+            <div class="specs-grid">
+                <!-- Spec Card 1 -->
+                <div class="spec-card">
+                    <div class="spec-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="15" x2="23" y2="15"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="15" x2="4" y2="15"></line></svg>
+                    </div>
+                    <div class="spec-info">
+                        <h3>核心晶片</h3>
+                        <p class="spec-val">ESP8266 (Tensilica L106)</p>
+                        <p class="spec-desc">內建 2.4GHz WiFi 模組，支援自訂韌體刷寫。</p>
+                    </div>
+                </div>
+
+                <!-- Spec Card 2 -->
+                <div class="spec-card">
+                    <div class="spec-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8L22 10h-9z"></path></svg>
+                    </div>
+                    <div class="spec-info">
+                        <h3>負載規格</h3>
+                        <p class="spec-val">10A / 2200W</p>
+                        <p class="spec-desc">支援 90V - 250V AC 電壓，可用於大部分中小型家電。</p>
+                    </div>
+                </div>
+
+                <!-- Spec Card 3 -->
+                <div class="spec-card">
+                    <div class="spec-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <div class="spec-info">
+                        <h3>記憶體大小</h3>
+                        <p class="spec-val">1MB flash memory</p>
+                        <p class="spec-desc">足夠載入完整的 Tasmota 或 ESPHome 系統韌體。</p>
+                    </div>
+                </div>
+
+                <!-- Spec Card 4 -->
+                <div class="spec-card">
+                    <div class="spec-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3zD6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"></path><path d="M21 9H3M21 15H3"></path></svg>
+                    </div>
+                    <div class="spec-info">
+                        <h3>內部引腳 (GPIO)</h3>
+                        <p class="spec-val">GPIO0, GPIO12, GPIO13</p>
+                        <p class="spec-desc">GPIO0 對應物理按鈕，GPIO12 對應繼電器，GPIO13 對應綠色 LED。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Setup Wizard Section -->
+    <section class="section wizard-section" id="wizard">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">設定與部署指南</h2>
+                <p class="section-subtitle">選擇您的難度路線，我們將帶您一步步完成智慧插座的初始設定。</p>
+            </div>
+
+            <!-- Path Selector Tab -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="tab-btn-app" onclick="switchWizardPath('app')">
+                    <span class="tab-badge">初學者</span>
+                    eWeLink App 官方連線
+                </button>
+                <button class="tab-btn" id="tab-btn-diy" onclick="switchWizardPath('diy')">
+                    <span class="tab-badge diy">開發者</span>
+                    Tasmota 硬體刷機改造
+                </button>
+            </div>
+
+            <!-- Wizard Card -->
+            <div class="wizard-card-wrapper">
+                <!-- Progress bar -->
+                <div class="wizard-progress-bar">
+                    <div class="progress-fill" id="wizard-progress-fill"></div>
+                    <div class="progress-steps" id="wizard-progress-steps">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <div class="wizard-step-content" id="wizard-step-content-box">
+                    <!-- Dynamic content injected here by app.js -->
+                </div>
+
+                <div class="wizard-actions">
+                    <button class="btn btn-outline" id="wizard-prev-btn" disabled>上一步</button>
+                    <button class="btn btn-primary" id="wizard-next-btn">下一步</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Smart Home Simulator Section -->
+    <section class="section simulator-section" id="simulator">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">智慧插座互動控制模擬器</h2>
+                <p class="section-subtitle">無需硬體，在這裡可以直接體驗插座開關、電路繼電器反應與 MQTT 通訊流程。</p>
+            </div>
+
+            <div class="simulator-grid">
+                <!-- Left: Virtual Plug control panel -->
+                <div class="sim-panel sim-control-panel">
+                    <div class="sim-panel-header">
+                        <h3>物理硬體模擬</h3>
+                        <span class="pulse-indicator" id="sim-hw-status">在線</span>
+                    </div>
+                    
+                    <div class="appliance-selector-wrapper">
+                        <label for="appliance-select">插上的家電物體：</label>
+                        <select id="appliance-select" class="form-select">
+                            <option value="lamp">復古床頭檯燈 (Desk Lamp)</option>
+                            <option value="fan">小桌扇 (Desk Fan)</option>
+                            <option value="coffee">咖啡機 (Coffee Maker)</option>
+                        </select>
+                    </div>
+
+                    <!-- Visual interaction area -->
+                    <div class="sim-visual-arena">
+                        <!-- The Virtual Plug -->
+                        <div class="virtual-plug-box">
+                            <div class="virtual-led-indicator" id="sim-plug-led" title="WiFi 狀態燈 (綠色)"></div>
+                            <button class="virtual-power-button" id="sim-power-btn" title="物理開關按鈕">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+                                </svg>
+                            </button>
+                            <span class="virtual-plug-label">S20 SOCKET</span>
+                        </div>
+
+                        <!-- Spark connector line -->
+                        <div class="wire-connector">
+                            <div class="electricity-flow" id="electricity-flow"></div>
+                        </div>
+
+                        <!-- Connected Appliance Visual -->
+                        <div class="virtual-appliance-box" id="virtual-appliance">
+                            <!-- Lamp Graphic -->
+                            <div class="appliance-graphic active" id="appliance-lamp">
+                                <div class="lamp-glow" id="lamp-glow-el"></div>
+                                <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Lamp Shade -->
+                                    <path d="M30 65 L40 30 H60 L70 65 Z" fill="#e2e8f0" stroke="#475569" stroke-width="3" />
+                                    <!-- Bulb -->
+                                    <circle cx="50" cy="50" r="10" fill="#fef08a" opacity="0.3" class="bulb-glass" />
+                                    <!-- Stand -->
+                                    <path d="M50 65 V85" stroke="#475569" stroke-width="4" />
+                                    <path d="M35 85 H65" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                            
+                            <!-- Fan Graphic -->
+                            <div class="appliance-graphic" id="appliance-fan">
+                                <svg class="fan-svg" width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Base -->
+                                    <path d="M50 70 V85 M35 85 H65" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+                                    <!-- Cage -->
+                                    <circle cx="50" cy="45" r="28" stroke="#475569" stroke-width="3" fill="#1e293b" />
+                                    <!-- Blades -->
+                                    <g class="fan-blades" id="fan-blades-g">
+                                        <circle cx="50" cy="45" r="6" fill="#64748b" />
+                                        <path d="M50 45 L50 20 C53 20 55 35 50 45 Z" fill="#64748b" />
+                                        <path d="M50 45 L50 70 C47 70 45 55 50 45 Z" fill="#64748b" />
+                                        <path d="M50 45 L25 45 C25 42 40 40 50 45 Z" fill="#64748b" />
+                                        <path d="M50 45 L75 45 C75 48 60 50 50 45 Z" fill="#64748b" />
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <!-- Coffee Maker Graphic -->
+                            <div class="appliance-graphic" id="appliance-coffee">
+                                <div class="steam-container">
+                                    <span class="steam-puff"></span>
+                                    <span class="steam-puff"></span>
+                                    <span class="steam-puff"></span>
+                                </div>
+                                <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Coffee Maker body -->
+                                    <path d="M30 20 H65 V80 H30 Z" fill="#334155" stroke="#1e293b" stroke-width="3" />
+                                    <path d="M65 20 H70 V45 H65 Z" fill="#475569" />
+                                    <!-- Pot -->
+                                    <rect x="42" y="55" width="22" height="22" rx="3" fill="#f8fafc" stroke="#1e293b" stroke-width="2" opacity="0.8" />
+                                    <rect x="48" y="60" width="16" height="12" fill="#78350f" class="coffee-liquid" />
+                                    <!-- Dispenser -->
+                                    <rect x="50" y="42" width="6" height="6" fill="#1e293b" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Simulated MQTT terminal and logs -->
+                <div class="sim-panel sim-console-panel">
+                    <div class="sim-panel-header">
+                        <h3>終端偵錯主控台 (Tasmota MQTT console)</h3>
+                        <button class="btn btn-xs btn-outline" id="btn-clear-console">清除</button>
+                    </div>
+                    <div class="console-body" id="console-logs">
+                        <!-- Log messages appear here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Automation Rules Creator -->
+    <section class="section rules-section" id="rules">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">智慧家庭自動化邏輯編輯器</h2>
+                <p class="section-subtitle">點選觸發條件與動作，即時產生對應的自動化設定，學習寫出您專屬的智慧指令。</p>
+            </div>
+
+            <div class="rules-builder-box">
+                <!-- Dropdown builders -->
+                <div class="rules-inputs">
+                    <div class="rule-field">
+                        <label>【當 (Trigger)】</label>
+                        <select id="rule-trigger" class="form-select">
+                            <option value="time-7">早上 07:00 整</option>
+                            <option value="sunset">日落時間（天黑時）</option>
+                            <option value="pir-motion">人體感測器偵測到有人動靜</option>
+                            <option value="phone-charge">手機充電電量達到 100%</option>
+                        </select>
+                    </div>
+
+                    <div class="rule-field">
+                        <label>【如果 (Condition)】</label>
+                        <select id="rule-condition" class="form-select">
+                            <option value="none">無特別條件（一律執行）</option>
+                            <option value="weekday">只有在工作日（週一至週五）</option>
+                            <option value="temp-high">環境溫度高於 28°C</option>
+                            <option value="is-dark">室內光線昏暗</option>
+                        </select>
+                    </div>
+
+                    <div class="rule-field">
+                        <label>【執行 (Action)】</label>
+                        <select id="rule-action" class="form-select">
+                            <option value="turn-on">開啟 S20 智慧插座電源</option>
+                            <option value="turn-off">關閉 S20 智慧插座電源</option>
+                            <option value="toggle">反轉插座開關狀態</option>
+                            <option value="on-timer">開啟電源，並在 30 分鐘後關閉</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Output card -->
+                <div class="rules-output">
+                    <div class="rules-output-header">
+                        <div class="tab-pill-container">
+                            <button class="rule-tab active" data-type="narrative">語意說明</button>
+                            <button class="rule-tab" data-type="yaml">Home Assistant YAML</button>
+                        </div>
+                    </div>
+                    <div class="rules-output-body">
+                        <div class="rule-output-content active" id="rule-narrative-box">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="rule-output-content" id="rule-yaml-box">
+                            <pre><code class="language-yaml" id="rule-yaml-code"># 點選左方條件自動產生 YAML</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LED Indicator Guide & Troubleshooting Section -->
+    <section class="section troubleshoot-section" id="troubleshoot">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">故障排除與 LED 狀態解析</h2>
+                <p class="section-subtitle">當智慧插座指示燈異常或無法連線時，您可以透過此處獲得快速解答。</p>
+            </div>
+
+            <div class="troubleshoot-layout">
+                <!-- Left: LED Signal Decoder -->
+                <div class="troubleshoot-panel">
+                    <h3>LED 狀態燈號對譯</h3>
+                    <div class="led-guide-list">
+                        <!-- Guide Item 1 -->
+                        <div class="led-guide-item active" data-led="pairing">
+                            <div class="led-light-preview pulse-fast"></div>
+                            <div class="led-guide-info">
+                                <h4>連續快閃兩下 (綠燈)</h4>
+                                <p>正在配對模式 (Pairing Mode) 中，等待 App 傳送 WiFi 認證。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Guide Item 2 -->
+                        <div class="led-guide-item" data-led="online">
+                            <div class="led-light-preview solid"></div>
+                            <div class="led-guide-info">
+                                <h4>常亮無閃爍 (綠燈)</h4>
+                                <p>成功連線至路由器並已與 eWeLink 雲端伺服器建立穩定連線。</p>
+                            </div>
+                        </div>
+
+                        <!-- Guide Item 3 -->
+                        <div class="led-guide-item" data-led="searching">
+                            <div class="led-light-preview pulse-slow"></div>
+                            <div class="led-guide-info">
+                                <h4>慢速單次循環閃爍 (綠燈)</h4>
+                                <p>正在嘗試連線到您的 WiFi 路由器，請確認熱點名稱及密碼是否正確。</p>
+                            </div>
+                        </div>
+
+                        <!-- Guide Item 4 -->
+                        <div class="led-guide-item" data-led="offline">
+                            <div class="led-light-preview off"></div>
+                            <div class="led-guide-info">
+                                <h4>熄滅不亮</h4>
+                                <p>插座未通電，或已連上網但當前「電源輸出」為關閉狀態（僅指 Relay LED 狀態）。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Accordion FAQ -->
+                <div class="troubleshoot-panel">
+                    <h3>常見問與答 (FAQ)</h3>
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Q1. 如何將 Sonoff S20 恢復出廠設定（重新進入配對狀態）？</span>
+                                <span class="accordion-icon">+</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>在智慧插座通電的狀態下，長按住機身正面的白色物理按鈕（約 7 秒鐘），直到綠色 LED 指示燈呈現「快閃兩下、常亮一下」的循環閃爍狀態，此時插座已成功重設並再次進入熱點配對模式。</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Q2. 支援 5GHz 的 WiFi 分享器嗎？</span>
+                                <span class="accordion-icon">+</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>不支援。Sonoff S20 內建的 ESP8266 晶片只支援 2.4GHz WiFi 頻段 (802.11 b/g/n)。在進行 App 配對時，請確保您的手機連線的是 2.4GHz 的 WiFi 熱點。</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Q3. 自訂燒錄 Tasmota 韌體後還能使用官方 eWeLink App 嗎？</span>
+                                <span class="accordion-icon">+</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>不行。刷寫 Tasmota / ESPHome 等開源韌體會完全覆蓋晶片原廠的韌體。刷機後，智慧插座將提供本地的網頁管理後台、MQTT 協定與 Home Assistant 整合介面，無法再回傳官方雲端，這也是出於完全隱私與本地化的目的。</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Q4. 負載大於 10A 的家電（如電熱水器、冷氣）可以使用嗎？</span>
+                                <span class="accordion-icon">+</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p><strong style="color:var(--secondary)">安全警告：</strong>請勿將 Sonoff S20 用於額定電流超過 10A (或消耗功率高於 2200W) 的大型發熱或高功率家電。強行使用可能導致繼電器融化、機體過熱甚至引發火災危險！</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Q5. 使用網頁燒錄時，Flash Speed (燒錄速度) 需要手動選擇嗎？</span>
+                                <span class="accordion-icon">+</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p>不需要。一般情況下請直接維持網頁預設值（例如 2000000 Baud），並直接點擊藍色「Connect」按鈕。只有當連線失敗、中斷或出現燒錄錯誤時，才建議手動調低速度（例如選用 460800 或 115200 Baud）以增加傳輸穩定性。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-container">
+            <p>&copy; 2026 Sonoff S20 Smart Socket Tutorial Hub. 專案基於教育用途開發。</p>
+            <div class="footer-links">
+                <a href="https://sonoff.tech/" target="_blank" rel="noopener">Sonoff 官網</a>
+                <a href="https://tasmota.github.io/docs/" target="_blank" rel="noopener">Tasmota 文件</a>
+                <a href="https://www.home-assistant.io/" target="_blank" rel="noopener">Home Assistant 官網</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main Logic Script -->
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
